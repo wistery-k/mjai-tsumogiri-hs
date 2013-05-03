@@ -1,0 +1,7 @@
+tsumogiri AI for mjai written in Haskell.
+
+This is not tested at all but maybe some codes are useful.
+
+requirement (cabal-install):
+attoparsec
+aeson
