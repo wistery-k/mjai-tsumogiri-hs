@@ -8,9 +8,10 @@ import System.IO
 import qualified Data.ByteString.Lazy.Char8 as LC
 import qualified Data.ByteString.Char8 as C
 import Control.Monad (mzero)
-import Control.Monad.State (StateT, evalStateT, lift)
+import Control.Monad.State (StateT, evalStateT, lift, mapStateT)
 import Control.Exception (finally)
 import Data.Either.Utils (forceEither)
+import Data.Functor.Identity (runIdentity)
 import Data.Aeson
 import Data.Aeson.Types
 import Data.Attoparsec (parseOnly)
@@ -38,12 +39,13 @@ mainLoop sock =
       lift $ hPutStrLn stderr line
       case parse parseJSON . forceEither $ parseOnly json (C.pack line) of
         Success actionSC -> do
-          actionCS <- Silica.silica actionSC
+          actionCS <- mapStateT liftIdentity $ Silica.silica actionSC
           lift $ case actionSC of
             SC.EndGame -> return Break
             SC.Error _ -> return Break
             _ -> (hPutStrLn h . LC.unpack . encode . toJSON $ actionCS) >> return Continue
         _ -> mzero
+    liftIdentity = return . runIdentity
     
 main :: IO ()
 main = withSocketsDo $ do

@@ -11,10 +11,11 @@ import qualified Mjai.Action.SC as SC
 import qualified Mjai.Action.CS as CS
 
 data Silica = Silica { id :: Int }
+
 init :: Silica
 init = Silica { id = -1 }
 
-silica :: Monad m => SC.ActionSC -> StateT Silica m CS.ActionCS
+silica :: SC.ActionSC -> State Silica CS.ActionCS
 
 silica (SC.Hello _ _) =
   return $ CS.Join "silica" "default"
@@ -24,7 +25,7 @@ silica (SC.StartGame id _) = do
   return CS.None
 
 silica (SC.Tsumo actor pai) = do
-  Silica{..} <- get
+  Silica {..} <- get
   return $
     if actor == id then 
       CS.Dahai id pai True
